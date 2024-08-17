@@ -6,7 +6,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Linq;
 
-using Bio.Core.Alphabet;
+using Bio.Core.Alphabets;
 using Bio.Core.Sequences;
 using Bio.Core.Resources;
 

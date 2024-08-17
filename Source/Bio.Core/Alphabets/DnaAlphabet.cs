@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using Bio.Core.Resources;
 using Bio.Core.Util;
 
-namespace Bio.Core.Alphabet;
+namespace Bio.Core.Alphabets;
 /// <summary>
 ///     The basic alphabet that describes symbols used in DNA sequences.
 ///     This alphabet allows not only for the four base nucleotide symbols,

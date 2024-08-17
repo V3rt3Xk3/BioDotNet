@@ -23,6 +23,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bio.Core.Cookbook", "Cookbook\Bio.Core.Cookbook\Bio.Core.Cookbook.csproj", "{867D8B0D-92AF-4933-9E03-3DFA32933520}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CookBook", "CookBook", "{781ACAED-8ABC-4614-9C5E-429A20AF2F6B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -41,6 +45,10 @@ Global
 		{37EBC9CF-5CE9-48D1-A810-D7E074464C62}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{37EBC9CF-5CE9-48D1-A810-D7E074464C62}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{37EBC9CF-5CE9-48D1-A810-D7E074464C62}.Release|Any CPU.Build.0 = Release|Any CPU
+		{867D8B0D-92AF-4933-9E03-3DFA32933520}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{867D8B0D-92AF-4933-9E03-3DFA32933520}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{867D8B0D-92AF-4933-9E03-3DFA32933520}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{867D8B0D-92AF-4933-9E03-3DFA32933520}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -49,6 +57,7 @@ Global
 		{E8132DB9-66A1-4A78-B447-F977A6B19D97} = {3A986291-B991-4165-B90D-135B612B20CD}
 		{06C86F94-9443-414D-B946-E44E9BEF7C23} = {3635C3EC-5715-4E7B-B0BA-FF59ABABE9A6}
 		{37EBC9CF-5CE9-48D1-A810-D7E074464C62} = {3A986291-B991-4165-B90D-135B612B20CD}
+		{867D8B0D-92AF-4933-9E03-3DFA32933520} = {781ACAED-8ABC-4614-9C5E-429A20AF2F6B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {5BC484D9-FB9E-43E4-B182-5BE81D05E161}

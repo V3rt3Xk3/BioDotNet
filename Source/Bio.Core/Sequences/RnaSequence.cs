@@ -1,4 +1,4 @@
-﻿using Bio.Core.Alphabet;
+﻿using Bio.Core.Alphabets;
 using System;
 using System.Collections.Generic;
 using System.Linq;

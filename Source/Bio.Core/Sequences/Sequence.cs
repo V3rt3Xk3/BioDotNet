@@ -1,13 +1,19 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Runtime.Intrinsics.X86;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Bio.Core.Alphabet;
+using Bio.Core.Alphabets;
+using Bio.Core.IO;
 using Bio.Core.Resources;
 using Bio.Util;
+using Microsoft.VisualBasic;
 
 namespace Bio.Core.Sequences;
 
@@ -41,12 +47,100 @@ public class Sequence : ISequence
 
     #endregion Member variables
 
+    #region Properties
+    /// <summary>
+    /// Gets or sets an identifier for this instance of sequence class.
+    /// </summary>
+    public string ID { get; set; } = "<unknown id>";
+
+    /// <summary>
+    /// Sequence name, optional (string)
+    /// </summary>
+    public string Name { get; set; } = "<unknown name>";
+
+    /// <summary>
+    /// Sequence description, optional (string)
+    /// </summary>
+    public string Description { get; set; } = "<unknown description>";
+
+
+    /// <summary>
+    /// Database cross references, optional (list of strings)
+    /// </summary>
+    public List<string> DbXrefs { get; protected set; } = new List<string>();
+
+    /// <summary>
+    /// Any (sub)features, optional (list of Feature objects)
+    /// </summary>
+    public List<Feature> Features { get; protected set; } = new List<Feature>();
+
+    /// <summary>
+    /// Dictionary of annotations for the whole sequence
+    /// </summary>
+    public Dictionary<string, object> Annotations { get; protected set; } = new Dictionary<string, object>();
+
+    /// <summary>
+    /// Per letter/symbol annotation (restricted dictionary). This 
+    /// holds string sequences(lists, strings or tuples) whose length 
+    /// matches that of the sequence. A typical use would be to hold 
+    /// a list of integers representing sequencing quality scores, or 
+    /// a string representing the secondary structure.
+    /// </summary>
+    public Dictionary<string, IEnumerable> LetterAnnotations { get; protected set; } = new Dictionary<string, IEnumerable>();
+
+    /// <summary>
+    /// Gets the number of chars contained in the Sequence.
+    /// </summary>
+    public long Count { get; protected set; }
+
+    /// <summary>
+    /// Gets or sets the alphabet to which symbols in this sequence belongs to.
+    /// </summary>
+    public IAlphabet Alphabet { get; set; } = StaticAlphabets.DNA;
+
+    /// <summary>
+    /// Gets or sets the Metadata of this instance.
+    /// Many sequence representations when saved to file also contain
+    /// information about that sequence. Unfortunately there is no standard
+    /// around what that data may be from format to format. This property
+    /// allows a place to put structured metadata that can be accessed by
+    /// a particular key.
+    /// <para>
+    /// For example, if species information is stored in a particular Species
+    /// class, you could add it to the dictionary by:
+    /// </para>
+    /// <para>
+    /// mySequence.Metadata["SpeciesInfo"] = mySpeciesInfo;
+    /// </para>
+    /// <para>
+    /// To fetch the data you would use:
+    /// </para>
+    /// <para>
+    /// Species mySpeciesInfo = mySequence.Metadata["SpeciesInfo"];
+    /// </para>
+    /// <para>
+    /// Particular formats may create their own data model class for information
+    /// unique to their format as well. Such as:
+    /// </para>
+    /// <para>
+    /// GenBankMetadata genBankData = new GenBankMetadata();
+    /// // ... add population code
+    /// mySequence.MetaData["GenBank"] = genBankData;.
+    /// </para>
+    /// </summary>
+    public Dictionary<string, object> Metadata
+    {
+        get { return this._metadata ?? (this._metadata = new Dictionary<string, object>()); }
+        set { this._metadata = value; }
+    }
+    #endregion Properties
+
     #region Constructors
     /// <summary>
     /// Constructor used when copying an existing sequence internally for reverse/complement usage
     /// to avoid double-copying the buffer.
     /// </summary>
-    protected Sequence()
+    public Sequence()
     {
     }
 
@@ -174,60 +268,96 @@ public class Sequence : ISequence
             this.sequence = newSequence.ToArray();
         }
     }
-    #endregion Constructors
 
-    #region Properties
-    /// <summary>
-    /// Gets or sets an identifier for this instance of sequence class.
-    /// </summary>
-    public string ID { get; set; } = String.Empty;
-
-    /// <summary>
-    /// Gets the number of chars contained in the Sequence.
-    /// </summary>
-    public long Count { get; protected set; }
-
-    /// <summary>
-    /// Gets or sets the alphabet to which symbols in this sequence belongs to.
-    /// </summary>
-    public IAlphabet Alphabet { get; set; } = StaticAlphabets.DNA;
-
-    /// <summary>
-    /// Gets or sets the Metadata of this instance.
-    /// Many sequence representations when saved to file also contain
-    /// information about that sequence. Unfortunately there is no standard
-    /// around what that data may be from format to format. This property
-    /// allows a place to put structured metadata that can be accessed by
-    /// a particular key.
-    /// <para>
-    /// For example, if species information is stored in a particular Species
-    /// class, you could add it to the dictionary by:
-    /// </para>
-    /// <para>
-    /// mySequence.Metadata["SpeciesInfo"] = mySpeciesInfo;
-    /// </para>
-    /// <para>
-    /// To fetch the data you would use:
-    /// </para>
-    /// <para>
-    /// Species mySpeciesInfo = mySequence.Metadata["SpeciesInfo"];
-    /// </para>
-    /// <para>
-    /// Particular formats may create their own data model class for information
-    /// unique to their format as well. Such as:
-    /// </para>
-    /// <para>
-    /// GenBankMetadata genBankData = new GenBankMetadata();
-    /// // ... add population code
-    /// mySequence.MetaData["GenBank"] = genBankData;.
-    /// </para>
-    /// </summary>
-    public Dictionary<string, object> Metadata
+    public Sequence(IAlphabet alphabet, string sequence, string id = "<unknown id>", string name = "<unknown name>", string description = "<unknown description>", List<string>? databaseCrossReferences = null, List<Feature>? features = null, Dictionary<string, object>? annotations = null, Dictionary<string, IEnumerable>? letterAnnotations = null) 
+        : this(alphabet, sequence, id, name, description, databaseCrossReferences, features, annotations, letterAnnotations, true)
     {
-        get { return this._metadata ?? (this._metadata = new Dictionary<string, object>()); }
-        set { this._metadata = value; }
     }
-    #endregion Properties
+
+    public Sequence(IAlphabet alphabet, string sequence, string id = "<unknown id>", string name = "<unknown name>", string description = "<unknown description>", List<string>? databaseCrossReferences = null, List<Feature>? features = null, Dictionary<string, object>? annotations = null, Dictionary<string, IEnumerable>? letterAnnotations = null, bool validate = true)
+    {
+        ID = id;
+        Name = name;
+        Description = description;
+
+        DatabaseCrossReferences = databaseCrossReferences ?? new List<string>();
+        Features = features ?? new List<Feature>();
+        Annotations = annotations ?? new Dictionary<string, object>();
+        LetterAnnotations = letterAnnotations ?? new Dictionary<string, IEnumerable>();
+
+        // validate the inputs
+        if (sequence == null)
+        {
+            throw new ArgumentNullException("sequence");
+        }
+
+        if (alphabet == null)
+        {
+            throw new ArgumentNullException("alphabet");
+        }
+
+        this.Alphabet = alphabet;
+        this.ID = string.Empty;
+        char[] values = sequence.ToCharArray();
+
+        if (validate)
+        {
+            // Validate sequence data
+            if (!alphabet.ValidateSequence(values, 0, values.GetLongLength(0)))
+            {
+                throw Helper.GenerateAlphabetCheckFailureException(alphabet, values);
+            }
+        }
+
+        this.sequence = values;
+        this.Count = this.sequence.GetLongLength(0);
+    }
+
+    public Sequence(IAlphabet alphabet, char[] sequence, string id = "<unknown id>", string name = "<unknown name>", string description = "<unknown description>", List<string>? databaseCrossReferences = null, List<Feature>? features = null, Dictionary<string, object>? annotations = null, Dictionary<string, IEnumerable>? letterAnnotations = null)
+        : this(alphabet, sequence, id, name, description, databaseCrossReferences, features, annotations, letterAnnotations, true)
+    {
+    }
+
+    public Sequence(IAlphabet alphabet, char[] sequence, string id = "<unknown id>", string name = "<unknown name>", string description = "<unknown description>", List<string>? databaseCrossReferences = null, List<Feature>? features = null, Dictionary<string, object>? annotations = null, Dictionary<string, IEnumerable>? letterAnnotations = null, bool validate = true)
+    {
+        ID = id;
+        Name = name;
+        Description = description;
+
+        DatabaseCrossReferences = databaseCrossReferences ?? new List<string>();
+        Features = features ?? new List<Feature>();
+        Annotations = annotations ?? new Dictionary<string, object>();
+        LetterAnnotations = letterAnnotations ?? new Dictionary<string, IEnumerable>();
+
+        // validate the inputs
+        if (alphabet == null)
+        {
+            throw new ArgumentNullException("alphabet");
+        }
+
+        if (sequence == null)
+        {
+            throw new ArgumentNullException("values");
+        }
+
+        if (validate)
+        {
+            // Validate sequence data
+            if (!alphabet.ValidateSequence(sequence, 0, sequence.GetLongLength(0)))
+            {
+                throw Helper.GenerateAlphabetCheckFailureException(alphabet, sequence);
+            }
+        }
+
+        this.sequence = new char[sequence.GetLongLength(0)];
+        this.ID = string.Empty;
+
+        Helper.Copy(sequence, this.sequence, sequence.GetLongLength(0));
+
+        this.Alphabet = alphabet;
+        this.Count = this.sequence.GetLongLength(0);
+    }
+    #endregion Constructors
 
     #region Methods
     /// <summary>

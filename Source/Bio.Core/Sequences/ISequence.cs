@@ -1,4 +1,6 @@
-﻿using Bio.Core.Alphabet;
+﻿using Bio.Core.Alphabets;
+using Bio.Core.IO;
+using System.Collections;
 
 namespace Bio.Core.Sequences;
 
@@ -22,6 +24,41 @@ public interface ISequence : IEnumerable<char>
     /// Gets alphabet to which this sequence should conform.
     /// </summary>
     IAlphabet Alphabet { get; }
+
+    /// <summary>
+    /// Sequence name, optional (string)
+    /// </summary>
+    public string Name { get; set; }
+
+    /// <summary>
+    /// Sequence description, optional (string)
+    /// </summary>
+    public string Description { get; set; }
+
+
+    /// <summary>
+    /// Database cross references, optional (list of strings)
+    /// </summary>
+    public List<string> DatabaseCrossReferences { get; protected set; }
+
+    /// <summary>
+    /// Any (sub)features, optional (list of Feature objects)
+    /// </summary>
+    public List<Feature> Features { get; protected set; }
+
+    /// <summary>
+    /// Dictionary of annotations for the whole sequence
+    /// </summary>
+    public Dictionary<string, object> Annotations { get; protected set; }
+
+    /// <summary>
+    /// Per letter/symbol annotation (restricted dictionary). This 
+    /// holds string sequences(lists, strings or tuples) whose length 
+    /// matches that of the sequence. A typical use would be to hold 
+    /// a list of integers representing sequencing quality scores, or 
+    /// a string representing the secondary structure.
+    /// </summary>
+    public Dictionary<string, IEnumerable> LetterAnnotations { get; protected set; }
 
     /// <summary>
     /// Gets the number of sequence items contained in the Sequence.

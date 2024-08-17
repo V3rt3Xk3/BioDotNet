@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Bio.Core.Alphabet;
+namespace Bio.Core.Alphabets;
 /// <summary>
 /// The basic alphabet that describes symbols used in RNA sequences.
 /// This alphabet allows not only for the four base nucleotide symbols,

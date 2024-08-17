@@ -1,4 +1,4 @@
-﻿using Bio.Core.Alphabet;
+﻿using Bio.Core.Alphabets;
 using Bio.Core.Resources;
 using System;
 using System.Collections.Generic;

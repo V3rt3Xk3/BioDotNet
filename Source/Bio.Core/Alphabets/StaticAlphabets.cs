@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Bio.Core.Alphabet;
+namespace Bio.Core.Alphabets;
 /// <summary>
 /// The currently supported and built-in alphabets for sequence items.
 /// </summary>

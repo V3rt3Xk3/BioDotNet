@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Bio.Core.Alphabet;
+namespace Bio.Core.Alphabets;
 /// <summary>
 /// The basic alphabet that describes symbols used in sequences of amino
 /// acids that come from codon encodings of RNA. This alphabet allows for
